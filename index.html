@@ -1,0 +1,2337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .nav-tab.active {
+            background: #4c1d95;
+            color: white;
+        }
+        
+        .content-area {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #4c1d95;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-icon {
+            font-size: 1.5em;
+        }
+        
+        .subsection {
+            margin-bottom: 20px;
+        }
+        
+        .subsection-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .data-item, .model-item, .capability-item, .product-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .item-title {
+            font-weight: 600;
+            color: #4c1d95;
+        }
+        
+        .add-btn, .remove-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .add-btn {
+            background: #667eea;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .add-btn:hover {
+            background: #5568d3;
+        }
+        
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .remove-btn:hover {
+            background: #c82333;
+        }
+        
+        .save-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: all 0.3s;
+        }
+        
+        .save-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        
+        .input-group {
+            margin-bottom: 10px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .relation-select {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+        
+        .relation-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        select[multiple] {
+            min-height: 80px;
+        }
+        
+        .flow-diagram {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .flow-step {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .flow-arrow {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .summary-section {
+            margin-bottom: 30px;
+        }
+        
+        .product-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #667eea;
+        }
+        
+        .product-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #4c1d95;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .trace-path {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .trace-step {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .trace-step-title {
+            font-weight: 600;
+            color: #4c1d95;
+            margin-bottom: 8px;
+        }
+        
+        .trace-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .trace-item-name {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        .trace-item-detail {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+        
+        .tag-internal {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .tag-external {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 16px;
+        }
+    
+    /* Firebase认证样式 */
+    .auth-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .auth-container {
+        max-width: 420px;
+        width: 90%;
+        padding: 40px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .auth-logo {
+        text-align: center;
+        font-size: 3em;
+        margin-bottom: 10px;
+    }
+    
+    .auth-title {
+        text-align: center;
+        color: #4c1d95;
+        margin-bottom: 30px;
+        font-size: 1.8em;
+    }
+    
+    .auth-input {
+        width: 100%;
+        padding: 14px;
+        margin-bottom: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+    
+    .auth-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+    
+    .auth-button {
+        width: 100%;
+        padding: 14px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 12px;
+        transition: all 0.3s;
+    }
+    
+    .auth-button:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+    }
+    
+    .auth-button.google {
+        background: #DB4437;
+    }
+    
+    .auth-button.google:hover {
+        background: #c23321;
+    }
+    
+    .auth-switch {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .auth-link {
+        color: #667eea;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .auth-link:hover {
+        text-decoration: underline;
+    }
+    
+    .user-bar {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        padding: 12px 20px;
+        border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 1000;
+    }
+    
+    .user-email {
+        font-size: 14px;
+        color: #495057;
+        font-weight: 500;
+    }
+    
+    .sync-status {
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+    
+    .sync-status.synced {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .sync-status.syncing {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .sync-status.error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .logout-btn {
+        padding: 6px 16px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .logout-btn:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+    
+    .auth-error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    </style>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+</head>
+<body>
+    <!-- Firebase认证界面 -->
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-container">
+            <div class="auth-logo">🚀</div>
+            <h2 class="auth-title">项目管理系统</h2>
+            
+            <div id="auth-error" class="auth-error hidden"></div>
+            
+            <!-- 登录表单 -->
+            <div id="login-form">
+                <input type="email" id="login-email" class="auth-input" placeholder="邮箱地址" autocomplete="email">
+                <input type="password" id="login-password" class="auth-input" placeholder="密码" autocomplete="current-password">
+                <button class="auth-button" onclick="handleLogin()">登录</button>
+                <button class="auth-button google" onclick="handleGoogleLogin()">
+                    <span style="margin-right: 8px;">🌐</span> 使用 Google 登录
+                </button>
+                <div class="auth-switch">
+                    还没有账号? <a class="auth-link" onclick="showRegister()">立即注册</a>
+                </div>
+            </div>
+            
+            <!-- 注册表单 -->
+            <div id="register-form" class="hidden">
+                <input type="email" id="register-email" class="auth-input" placeholder="邮箱地址" autocomplete="email">
+                <input type="password" id="register-password" class="auth-input" placeholder="密码 (至少6位)" autocomplete="new-password">
+                <input type="password" id="register-password-confirm" class="auth-input" placeholder="确认密码" autocomplete="new-password">
+                <button class="auth-button" onclick="handleRegister()">注册</button>
+                <div class="auth-switch">
+                    已有账号? <a class="auth-link" onclick="showLogin()">返回登录</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户信息栏 -->
+    <div id="user-bar" class="user-bar hidden">
+        <span class="user-email" id="user-email-display"></span>
+        <span class="sync-status synced" id="sync-status">已同步 ✓</span>
+        <button class="logout-btn" onclick="handleLogout()">退出</button>
+    </div>
+
+
+    <div class="container">
+        <h1>🚀 五项目管理系统</h1>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('silicon-human')">硅基人力</button>
+            <button class="nav-tab" onclick="switchTab('silicon-colleague')">硅基同事</button>
+            <button class="nav-tab" onclick="switchTab('base-model')">基座模型</button>
+            <button class="nav-tab" onclick="switchTab('space-robot')">空间机器人</button>
+            <button class="nav-tab" onclick="switchTab('wearable-robot')">穿戴机器人</button>
+            <button class="nav-tab" onclick="switchTab('summary')">📊 产品汇总</button>
+        </div>
+        
+        <div class="content-area">
+            <!-- 硅基人力 -->
+            <div id="silicon-human" class="tab-content active">
+                <h2 style="margin-bottom: 20px; color: #4c1d95;">硅基人力</h2>
+                
+                <!-- 数据流向图 -->
+                <div class="flow-diagram">
+                    <span class="flow-step">数据要素</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">基座模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">能力模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">产品输出</span>
+                    <br>
+                    <span style="font-size: 12px; opacity: 0.8;">支持灵活连接:数据可直接到能力模型,基座模型可直接到产品</span>
+                </div>
+                
+                <!-- 心脏部分 -->
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">💗</div>
+                        心脏（算力）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">训练算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="sh-training-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">推理算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="sh-inference-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">硬件载体</div>
+                        <textarea placeholder="请输入使用的硬件，每行一个" id="sh-hardware"></textarea>
+                    </div>
+                </div>
+                
+                <!-- 大脑部分 -->
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🧠</div>
+                        大脑
+                    </div>
+                    
+                    <!-- 数据要素 -->
+                    <div class="subsection">
+                        <div class="subsection-title">数据要素</div>
+                        <div id="sh-data-container">
+                            <!-- 数据项将动态添加 -->
+                        </div>
+                        <button class="add-btn" onclick="addDataItem('sh')">+ 添加数据</button>
+                    </div>
+                    
+                    <!-- 基座模型 -->
+                    <div class="subsection">
+                        <div class="subsection-title">基座模型</div>
+                        <div id="sh-model-container">
+                            <!-- 模型项将动态添加 -->
+                        </div>
+                        <button class="add-btn" onclick="addModelItem('sh')">+ 添加模型</button>
+                    </div>
+                    
+                    <!-- 能力模型 -->
+                    <div class="subsection">
+                        <div class="subsection-title">能力模型</div>
+                        <div id="sh-capability-container">
+                            <!-- 能力模型项将动态添加 -->
+                        </div>
+                        <button class="add-btn" onclick="addCapabilityItem('sh')">+ 添加能力模型</button>
+                    </div>
+                </div>
+                
+                <!-- 眼睛部分 -->
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">👁️</div>
+                        眼睛（感知）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">感知硬件</div>
+                        <textarea placeholder="请输入感知硬件，每行一个" id="sh-perception"></textarea>
+                    </div>
+                </div>
+                
+                <!-- 身体部分 -->
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🤖</div>
+                        身体（产品）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">产品列表</div>
+                        <div id="sh-product-container">
+                            <!-- 产品项将动态添加 -->
+                        </div>
+                        <button class="add-btn" onclick="addProductItem('sh')">+ 添加产品</button>
+                    </div>
+                </div>
+                
+                <button class="save-btn" onclick="saveProject('sh')">💾 保存硅基人力</button>
+            </div>
+            
+            <!-- 硅基同事 -->
+            <div id="silicon-colleague" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #4c1d95;">硅基同事</h2>
+                
+                <div class="flow-diagram">
+                    <span class="flow-step">数据要素</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">基座模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">能力模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">产品输出</span>
+                    <br>
+                    <span style="font-size: 12px; opacity: 0.8;">支持灵活连接:数据可直接到能力模型,基座模型可直接到产品</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">💗</div>
+                        心脏（算力）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">训练算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="sc-training-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">推理算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="sc-inference-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">硬件载体</div>
+                        <textarea placeholder="请输入使用的硬件，每行一个" id="sc-hardware"></textarea>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🧠</div>
+                        大脑
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">数据要素</div>
+                        <div id="sc-data-container"></div>
+                        <button class="add-btn" onclick="addDataItem('sc')">+ 添加数据</button>
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">基座模型</div>
+                        <div id="sc-model-container"></div>
+                        <button class="add-btn" onclick="addModelItem('sc')">+ 添加模型</button>
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">能力模型</div>
+                        <div id="sc-capability-container"></div>
+                        <button class="add-btn" onclick="addCapabilityItem('sc')">+ 添加能力模型</button>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">👁️</div>
+                        眼睛（感知）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">感知硬件</div>
+                        <textarea placeholder="请输入感知硬件，每行一个" id="sc-perception"></textarea>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🤖</div>
+                        身体（产品）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">产品列表</div>
+                        <div id="sc-product-container"></div>
+                        <button class="add-btn" onclick="addProductItem('sc')">+ 添加产品</button>
+                    </div>
+                </div>
+                
+                <button class="save-btn" onclick="saveProject('sc')">💾 保存硅基同事</button>
+            </div>
+            
+            <!-- 基座模型 -->
+            <div id="base-model" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #4c1d95;">基座模型</h2>
+                
+                <div class="flow-diagram">
+                    <span class="flow-step">数据要素</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">基座模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">能力模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">产品输出</span>
+                    <br>
+                    <span style="font-size: 12px; opacity: 0.8;">支持灵活连接:数据可直接到能力模型,基座模型可直接到产品</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">💗</div>
+                        心脏（算力）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">训练算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="bm-training-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">推理算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="bm-inference-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">硬件载体</div>
+                        <textarea placeholder="请输入使用的硬件，每行一个" id="bm-hardware"></textarea>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🧠</div>
+                        大脑
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">数据要素</div>
+                        <div id="bm-data-container"></div>
+                        <button class="add-btn" onclick="addDataItem('bm')">+ 添加数据</button>
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">基座模型</div>
+                        <div id="bm-model-container"></div>
+                        <button class="add-btn" onclick="addModelItem('bm')">+ 添加模型</button>
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">能力模型</div>
+                        <div id="bm-capability-container"></div>
+                        <button class="add-btn" onclick="addCapabilityItem('bm')">+ 添加能力模型</button>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">👁️</div>
+                        眼睛（感知）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">感知硬件</div>
+                        <textarea placeholder="请输入感知硬件，每行一个" id="bm-perception"></textarea>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🤖</div>
+                        身体（产品）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">产品列表</div>
+                        <div id="bm-product-container"></div>
+                        <button class="add-btn" onclick="addProductItem('bm')">+ 添加产品</button>
+                    </div>
+                </div>
+                
+                <button class="save-btn" onclick="saveProject('bm')">💾 保存基座模型</button>
+            </div>
+            
+            <!-- 空间机器人 -->
+            <div id="space-robot" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #4c1d95;">空间机器人</h2>
+                
+                <div class="flow-diagram">
+                    <span class="flow-step">数据要素</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">基座模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">能力模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">产品输出</span>
+                    <br>
+                    <span style="font-size: 12px; opacity: 0.8;">支持灵活连接:数据可直接到能力模型,基座模型可直接到产品</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">💗</div>
+                        心脏（算力）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">训练算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="sr-training-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">推理算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="sr-inference-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">硬件载体</div>
+                        <textarea placeholder="请输入使用的硬件，每行一个" id="sr-hardware"></textarea>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🧠</div>
+                        大脑
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">数据要素</div>
+                        <div id="sr-data-container"></div>
+                        <button class="add-btn" onclick="addDataItem('sr')">+ 添加数据</button>
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">基座模型</div>
+                        <div id="sr-model-container"></div>
+                        <button class="add-btn" onclick="addModelItem('sr')">+ 添加模型</button>
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">能力模型</div>
+                        <div id="sr-capability-container"></div>
+                        <button class="add-btn" onclick="addCapabilityItem('sr')">+ 添加能力模型</button>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">👁️</div>
+                        眼睛（感知）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">感知硬件</div>
+                        <textarea placeholder="请输入感知硬件，每行一个" id="sr-perception"></textarea>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🤖</div>
+                        身体（产品）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">产品列表</div>
+                        <div id="sr-product-container"></div>
+                        <button class="add-btn" onclick="addProductItem('sr')">+ 添加产品</button>
+                    </div>
+                </div>
+                
+                <button class="save-btn" onclick="saveProject('sr')">💾 保存空间机器人</button>
+            </div>
+            
+            <!-- 穿戴机器人 -->
+            <div id="wearable-robot" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #4c1d95;">穿戴机器人</h2>
+                
+                <div class="flow-diagram">
+                    <span class="flow-step">数据要素</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">基座模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">能力模型</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">产品输出</span>
+                    <br>
+                    <span style="font-size: 12px; opacity: 0.8;">支持灵活连接:数据可直接到能力模型,基座模型可直接到产品</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">💗</div>
+                        心脏（算力）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">训练算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="wr-training-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">推理算力</div>
+                        <input type="text" placeholder="请输入使用的卡数量" id="wr-inference-compute">
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">硬件载体</div>
+                        <textarea placeholder="请输入使用的硬件，每行一个" id="wr-hardware"></textarea>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🧠</div>
+                        大脑
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">数据要素</div>
+                        <div id="wr-data-container"></div>
+                        <button class="add-btn" onclick="addDataItem('wr')">+ 添加数据</button>
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">基座模型</div>
+                        <div id="wr-model-container"></div>
+                        <button class="add-btn" onclick="addModelItem('wr')">+ 添加模型</button>
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">能力模型</div>
+                        <div id="wr-capability-container"></div>
+                        <button class="add-btn" onclick="addCapabilityItem('wr')">+ 添加能力模型</button>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">👁️</div>
+                        眼睛（感知）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">感知硬件</div>
+                        <textarea placeholder="请输入感知硬件，每行一个" id="wr-perception"></textarea>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🤖</div>
+                        身体（产品）
+                    </div>
+                    <div class="subsection">
+                        <div class="subsection-title">产品列表</div>
+                        <div id="wr-product-container"></div>
+                        <button class="add-btn" onclick="addProductItem('wr')">+ 添加产品</button>
+                    </div>
+                </div>
+                
+                <button class="save-btn" onclick="saveProject('wr')">💾 保存穿戴机器人</button>
+            </div>
+            
+            <!-- 产品汇总 -->
+            <div id="summary" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #4c1d95;">📊 产品视角汇总</h2>
+                <p style="color: #666; margin-bottom: 20px;">以产品为中心，追溯每个产品的技术来源和数据路径</p>
+                <div id="summary-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+    // ==================== Firebase配置和初始化 ====================
+    const firebaseConfig = {
+        apiKey: "AIzaSyB4w5VAbNyrhRtr0yeCLJy3TNMHWaBKghU",
+        authDomain: "projectmanagment-2bc2d.firebaseapp.com",
+        projectId: "projectmanagment-2bc2d",
+        storageBucket: "projectmanagment-2bc2d.firebasestorage.app",
+        messagingSenderId: "1002641026413",
+        appId: "1:1002641026413:web:1f20194b84b5fba15f7e64",
+        measurementId: "G-58XBNQNX8X"
+    };
+
+    // 初始化Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // 检查Firebase是否正确加载
+    if (typeof firebase === 'undefined') {
+        console.error('Firebase未加载!');
+        alert('Firebase加载失败,请检查网络连接');
+    } else {
+        console.log('Firebase已加载');
+        console.log('Auth:', auth);
+        console.log('Firestore:', db);
+    }
+    
+    let currentUser = null;
+    let saveTimeout = null;
+
+    // ==================== 认证状态监听 ====================
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('auth-overlay').classList.add('hidden');
+            document.getElementById('user-bar').classList.remove('hidden');
+            document.getElementById('user-email-display').textContent = user.email;
+            
+            // 加载用户数据
+            loadDataFromFirebase();
+        } else {
+            currentUser = null;
+            document.getElementById('auth-overlay').classList.remove('hidden');
+            document.getElementById('user-bar').classList.add('hidden');
+        }
+    });
+
+    // ==================== 认证功能 ====================
+    
+    function showAuthError(message) {
+        const errorDiv = document.getElementById('auth-error');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+        setTimeout(() => {
+            errorDiv.classList.add('hidden');
+        }, 5000);
+    }
+
+    function showLogin() {
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('auth-error').classList.add('hidden');
+    }
+
+    function showRegister() {
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+        document.getElementById('auth-error').classList.add('hidden');
+    }
+
+    async function handleLogin() {
+        console.log('handleLogin 被调用');
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        
+        if (!email || !password) {
+            showAuthError('请输入邮箱和密码');
+            return;
+        }
+        
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+        } catch (error) {
+            console.error('登录错误:', error);
+            if (error.code === 'auth/user-not-found') {
+                showAuthError('用户不存在');
+            } else if (error.code === 'auth/wrong-password') {
+                showAuthError('密码错误');
+            } else if (error.code === 'auth/invalid-email') {
+                showAuthError('邮箱格式不正确');
+            } else {
+                showAuthError('登录失败: ' + error.message);
+            }
+        }
+    }
+
+    async function handleRegister() {
+        console.log('handleRegister 被调用');
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value;
+        const confirm = document.getElementById('register-password-confirm').value;
+        
+        if (!email || !password || !confirm) {
+            showAuthError('请填写所有字段');
+            return;
+        }
+        
+        if (password !== confirm) {
+            showAuthError('两次密码不一致');
+            return;
+        }
+        
+        if (password.length < 6) {
+            showAuthError('密码至少需要6位');
+            return;
+        }
+        
+        try {
+            await auth.createUserWithEmailAndPassword(email, password);
+            showAuthError('注册成功!正在登录...');
+            setTimeout(() => {
+                document.getElementById('auth-error').classList.add('hidden');
+            }, 2000);
+        } catch (error) {
+            console.error('注册错误:', error);
+            if (error.code === 'auth/email-already-in-use') {
+                showAuthError('该邮箱已被注册');
+            } else if (error.code === 'auth/invalid-email') {
+                showAuthError('邮箱格式不正确');
+            } else if (error.code === 'auth/weak-password') {
+                showAuthError('密码强度不够');
+            } else {
+                showAuthError('注册失败: ' + error.message);
+            }
+        }
+    }
+
+    async function handleGoogleLogin() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        try {
+            await auth.signInWithPopup(provider);
+        } catch (error) {
+            console.error('Google登录错误:', error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                showAuthError('登录窗口已关闭');
+            } else {
+                showAuthError('Google登录失败: ' + error.message);
+            }
+        }
+    }
+
+    
+    // 确保函数全局可用
+    window.handleLogin = handleLogin;
+    window.handleRegister = handleRegister;
+    window.handleGoogleLogin = handleGoogleLogin;
+    window.handleLogout = handleLogout;
+    window.showLogin = showLogin;
+    window.showRegister = showRegister;
+
+    async function handleLogout() {
+        if (confirm('确定要退出登录吗?')) {
+            try {
+                await auth.signOut();
+            } catch (error) {
+                console.error('退出错误:', error);
+                alert('退出失败');
+            }
+        }
+    }
+
+    // ==================== 数据同步功能 ====================
+    
+    function updateSyncStatus(status, message) {
+        const statusEl = document.getElementById('sync-status');
+        statusEl.className = 'sync-status ' + status;
+        statusEl.textContent = message;
+    }
+
+    async function loadDataFromFirebase() {
+        if (!currentUser) return;
+        
+        updateSyncStatus('syncing', '加载中...');
+        
+        try {
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.projects) {
+                    projectData = data.projects;
+                    
+                    // 重新加载所有项目到界面
+                    ['sh', 'sc', 'bm', 'sr', 'wr'].forEach(project => {
+                        loadProjectToUI(project);
+                    });
+                    
+                    console.log('数据加载成功');
+                }
+            } else {
+                console.log('新用户,无历史数据');
+            }
+            
+            updateSyncStatus('synced', '已同步 ✓');
+        } catch (error) {
+            console.error('加载数据失败:', error);
+            updateSyncStatus('error', '加载失败 ✗');
+        }
+    }
+
+    async function saveToFirebase() {
+        if (!currentUser) return;
+        
+        updateSyncStatus('syncing', '保存中...');
+        
+        try {
+            await db.collection('users').doc(currentUser.uid).set({
+                projects: projectData,
+                lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            updateSyncStatus('synced', '已同步 ✓');
+            console.log('数据保存成功');
+        } catch (error) {
+            console.error('保存数据失败:', error);
+            updateSyncStatus('error', '同步失败 ✗');
+        }
+    }
+
+    // 防抖保存 - 避免频繁保存
+    function debouncedSave() {
+        if (saveTimeout) clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            saveToFirebase();
+        }, 1000); // 1秒后保存
+    }
+
+    // ==================== 加载项目数据到UI ====================
+    
+    function loadProjectToUI(project) {
+        const data = projectData[project];
+        
+        // 清空现有容器
+        const dataContainer = document.getElementById(`${project}-data-container`);
+        const modelContainer = document.getElementById(`${project}-model-container`);
+        const capabilityContainer = document.getElementById(`${project}-capability-container`);
+        const productContainer = document.getElementById(`${project}-product-container`);
+        
+        if (dataContainer) dataContainer.innerHTML = '';
+        if (modelContainer) modelContainer.innerHTML = '';
+        if (capabilityContainer) capabilityContainer.innerHTML = '';
+        if (productContainer) productContainer.innerHTML = '';
+        
+        // 加载基本字段
+        const trainingInput = document.getElementById(`${project}-training-compute`);
+        const inferenceInput = document.getElementById(`${project}-inference-compute`);
+        const hardwareInput = document.getElementById(`${project}-hardware`);
+        const perceptionInput = document.getElementById(`${project}-perception`);
+        
+        if (trainingInput && data.trainingCompute) trainingInput.value = data.trainingCompute;
+        if (inferenceInput && data.inferenceCompute) inferenceInput.value = data.inferenceCompute;
+        if (hardwareInput && data.hardware) hardwareInput.value = data.hardware;
+        if (perceptionInput && data.perception) perceptionInput.value = data.perception;
+        
+        // 重新创建所有项目
+        if (data.data) {
+            data.data.forEach((item, index) => {
+                const html = createDataItemHTML(project, item, index + 1);
+                if (dataContainer) dataContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        
+        if (data.models) {
+            data.models.forEach((item, index) => {
+                const html = createModelItemHTML(project, item, index + 1);
+                if (modelContainer) modelContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        
+        if (data.capabilities) {
+            data.capabilities.forEach((item, index) => {
+                const html = createCapabilityItemHTML(project, item, index + 1);
+                if (capabilityContainer) capabilityContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        
+        if (data.products) {
+            data.products.forEach((item, index) => {
+                const html = createProductItemHTML(project, item, index + 1);
+                if (productContainer) productContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        
+        // 更新所有选择器
+        updateAllSelectors(project);
+    }
+
+// 全局数据存储
+        let projectData = {
+            sh: { data: [], models: [], capabilities: [], products: [] },
+            sc: { data: [], models: [], capabilities: [], products: [] },
+            bm: { data: [], models: [], capabilities: [], products: [] },
+            sr: { data: [], models: [], capabilities: [], products: [] },
+            wr: { data: [], models: [], capabilities: [], products: [] }
+        };
+        
+        // 产品选项
+        const productOptions = [
+            { value: 'autonomous-driving', label: '🚗 自动驾驶' },
+            { value: 'smart-cabin', label: '🏠 智能座舱' },
+            { value: 'wearable-robot', label: '🦾 穿戴机器人' },
+            { value: 'silicon-colleague', label: '👔 硅基同事' }
+        ];
+        
+        // 项目名称映射
+        const projectNames = {
+            sh: '硅基人力',
+            sc: '硅基同事',
+            bm: '基座模型',
+            sr: '空间机器人',
+            wr: '穿戴机器人'
+        };
+        
+        // 切换标签页
+        function switchTab(tabId) {
+            // 更新标签按钮
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 更新内容区域
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            // 如果是汇总页面，生成汇总
+            if (tabId === 'summary') {
+                generateSummary();
+            }
+        }
+        
+        // 添加数据项
+        function addDataItem(project) {
+            const container = document.getElementById(`${project}-data-container`);
+            const index = projectData[project].data.length + 1;
+            
+            const dataItem = {
+                id: `${project}-data-${index}`,
+                name: '',
+                source: 'internal',
+                volume: '',
+                toModels: [],
+                toCapabilities: []
+            };
+            
+            projectData[project].data.push(dataItem);
+            
+            const html = `
+                <div class="data-item" data-id="${dataItem.id}">
+                    <div class="item-header">
+                        <span class="item-title">数据 #${index}</span>
+                        <button class="remove-btn" onclick="removeItem('${project}', 'data', '${dataItem.id}')">删除</button>
+                    </div>
+                    <div class="input-group">
+                        <label>数据名称：</label>
+                        <input type="text" placeholder="输入数据名称" onchange="updateDataField('${project}', '${dataItem.id}', 'name', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>数据来源：</label>
+                        <select onchange="updateDataField('${project}', '${dataItem.id}', 'source', this.value)">
+                            <option value="internal">内部</option>
+                            <option value="external">外部</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>数据量：</label>
+                        <input type="text" placeholder="例如：100TB" onchange="updateDataField('${project}', '${dataItem.id}', 'volume', this.value)">
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">输入到基座模型：</span>
+                        <select multiple id="${dataItem.id}-to-models" onchange="updateDataRelation('${project}', '${dataItem.id}')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">直接输出到能力模型：</span>
+                        <select multiple id="${dataItem.id}-to-capabilities" onchange="updateDataRelation('${project}', '${dataItem.id}', 'toCapabilities')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+            updateAllSelectors(project);
+        }
+        
+        // 添加基座模型项
+        function addModelItem(project) {
+            const container = document.getElementById(`${project}-model-container`);
+            const index = projectData[project].models.length + 1;
+            
+            const modelItem = {
+                id: `${project}-model-${index}`,
+                name: '',
+                params: '',
+                version: '',
+                fromData: [],
+                toCapabilities: [],
+                toProducts: []
+            };
+            
+            projectData[project].models.push(modelItem);
+            
+            const html = `
+                <div class="model-item" data-id="${modelItem.id}">
+                    <div class="item-header">
+                        <span class="item-title">基座模型 #${index}</span>
+                        <button class="remove-btn" onclick="removeItem('${project}', 'models', '${modelItem.id}')">删除</button>
+                    </div>
+                    <div class="input-group">
+                        <label>模型名称：</label>
+                        <input type="text" placeholder="例如：GPT-4" onchange="updateModelField('${project}', '${modelItem.id}', 'name', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>参数规模：</label>
+                        <input type="text" placeholder="例如：175B" onchange="updateModelField('${project}', '${modelItem.id}', 'params', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>版本号：</label>
+                        <input type="text" placeholder="例如：v2.0" onchange="updateModelField('${project}', '${modelItem.id}', 'version', this.value)">
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">来自数据：</span>
+                        <select multiple id="${modelItem.id}-from-data" onchange="updateModelRelation('${project}', '${modelItem.id}', 'from')">
+                            <option value="none">无</option>
+                        </select>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">输出到能力模型：</span>
+                        <select multiple id="${modelItem.id}-to-capabilities" onchange="updateModelRelation('${project}', '${modelItem.id}', 'toCapabilities')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">直接输出到产品：</span>
+                        <select multiple id="${modelItem.id}-to-products" onchange="updateModelRelation('${project}', '${modelItem.id}', 'toProducts')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+            updateAllSelectors(project);
+        }
+        
+        // 添加能力模型项
+        function addCapabilityItem(project) {
+            const container = document.getElementById(`${project}-capability-container`);
+            const index = projectData[project].capabilities.length + 1;
+            
+            const capItem = {
+                id: `${project}-capability-${index}`,
+                name: '',
+                description: '',
+                fromModels: [],
+                fromData: [],
+                toProducts: []
+            };
+            
+            projectData[project].capabilities.push(capItem);
+            
+            const html = `
+                <div class="capability-item" data-id="${capItem.id}">
+                    <div class="item-header">
+                        <span class="item-title">能力模型 #${index}</span>
+                        <button class="remove-btn" onclick="removeItem('${project}', 'capabilities', '${capItem.id}')">删除</button>
+                    </div>
+                    <div class="input-group">
+                        <label>能力模型名称：</label>
+                        <input type="text" placeholder="输入能力模型名称" onchange="updateCapabilityField('${project}', '${capItem.id}', 'name', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>描述：</label>
+                        <textarea placeholder="描述该能力模型的功能和特点" onchange="updateCapabilityField('${project}', '${capItem.id}', 'description', this.value)"></textarea>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">来自基座模型：</span>
+                        <select multiple id="${capItem.id}-from-models" onchange="updateCapabilityRelation('${project}', '${capItem.id}', 'from')">
+                            <option value="none">无</option>
+                        </select>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">直接来自数据：</span>
+                        <select multiple id="${capItem.id}-from-data" onchange="updateCapabilityRelation('${project}', '${capItem.id}', 'fromData')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">输出到产品：</span>
+                        <select multiple id="${capItem.id}-to-products" onchange="updateCapabilityRelation('${project}', '${capItem.id}', 'to')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+            updateAllSelectors(project);
+        }
+        
+        // 添加产品项
+        function addProductItem(project) {
+            const container = document.getElementById(`${project}-product-container`);
+            const index = projectData[project].products.length + 1;
+            
+            const productItem = {
+                id: `${project}-product-${index}`,
+                type: '',
+                description: '',
+                fromCapabilities: [],
+                fromModels: []
+            };
+            
+            projectData[project].products.push(productItem);
+            
+            let optionsHtml = '<option value="">请选择产品</option>';
+            productOptions.forEach(opt => {
+                optionsHtml += `<option value="${opt.value}">${opt.label}</option>`;
+            });
+            
+            const html = `
+                <div class="product-item" data-id="${productItem.id}">
+                    <div class="item-header">
+                        <span class="item-title">产品 #${index}</span>
+                        <button class="remove-btn" onclick="removeItem('${project}', 'products', '${productItem.id}')">删除</button>
+                    </div>
+                    <div class="input-group">
+                        <label>选择产品：</label>
+                        <select onchange="updateProductField('${project}', '${productItem.id}', 'type', this.value)">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>产品描述：</label>
+                        <textarea placeholder="描述产品特点" onchange="updateProductField('${project}', '${productItem.id}', 'description', this.value)"></textarea>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">来源于能力模型：</span>
+                        <select multiple id="${productItem.id}-from-capabilities" onchange="updateProductRelation('${project}', '${productItem.id}', 'fromCapabilities')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">直接来源于基座模型：</span>
+                        <select multiple id="${productItem.id}-from-models" onchange="updateProductRelation('${project}', '${productItem.id}', 'fromModels')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+            updateAllSelectors(project);
+        }
+        
+        // 更新数据字段
+        function updateDataField(project, id, field, value) {
+            const item = projectData[project].data.find(d => d.id === id);
+            if (item) item[field] = value;
+        
+        debouncedSave();
+    }
+        
+        // 更新模型字段
+        function updateModelField(project, id, field, value) {
+            const item = projectData[project].models.find(m => m.id === id);
+            if (item) item[field] = value;
+        
+        debouncedSave();
+    }
+        
+        // 更新能力模型字段
+        function updateCapabilityField(project, id, field, value) {
+            const item = projectData[project].capabilities.find(c => c.id === id);
+            if (item) item[field] = value;
+        
+        debouncedSave();
+    }
+        
+        // 更新产品字段
+        function updateProductField(project, id, field, value) {
+            const item = projectData[project].products.find(p => p.id === id);
+            if (item) item[field] = value;
+        
+        debouncedSave();
+    }
+        
+        // 更新数据关联
+        function updateDataRelation(project, id) {
+            const item = projectData[project].data.find(d => d.id === id);
+            const select = document.getElementById(`${id}-to-models`);
+            const selected = Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
+            if (item) item.toModels = selected;
+        }
+        
+        // 更新模型关联
+        function updateModelRelation(project, id, field) {
+            const item = projectData[project].models.find(m => m.id === id);
+            if (!item) return;
+            
+            if (field === 'fromData') {
+                const select = document.getElementById(`${id}-from-data`);
+                const selected = Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
+                item.fromData = selected;
+            } else if (field === 'toCapabilities') {
+                const select = document.getElementById(`${id}-to-capabilities`);
+                const selected = Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
+                item.toCapabilities = selected;
+            } else if (field === 'toProducts') {
+                const select = document.getElementById(`${id}-to-products`);
+                const selected = Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
+                item.toProducts = selected;
+            }
+        }
+        
+        // 更新能力模型关联
+        function updateCapabilityRelation(project, id, direction) {
+            const item = projectData[project].capabilities.find(c => c.id === id);
+            if (direction === 'from') {
+                const select = document.getElementById(`${id}-from-models`);
+                const selected = Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
+                if (item) item.fromModels = selected;
+            } else {
+                const select = document.getElementById(`${id}-to-products`);
+                const selected = Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
+                if (item) item.toProducts = selected;
+            }
+        }
+        
+        // 更新产品关联
+        function updateProductRelation(project, id, field) {
+            const item = projectData[project].products.find(p => p.id === id);
+            if (!item) return;
+            
+            if (field === 'fromCapabilities') {
+                const select = document.getElementById(`${id}-from-capabilities`);
+                const selected = Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
+                item.fromCapabilities = selected;
+            } else if (field === 'fromModels') {
+                const select = document.getElementById(`${id}-from-models`);
+                const selected = Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
+                item.fromModels = selected;
+            }
+        }
+        
+        // 更新所有选择器
+        function updateAllSelectors(project) {
+            setTimeout(() => {
+                // 更新数据→模型选择器
+                projectData[project].data.forEach(dataItem => {
+                    const select = document.getElementById(`${dataItem.id}-to-models`);
+                    if (select) {
+                        select.innerHTML = '<option value="none">无</option>';
+                        projectData[project].models.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model.id;
+                            option.textContent = model.name || `基座模型 #${model.id.split('-').pop()}`;
+                            if (dataItem.toModels.includes(model.id)) {
+                                option.selected = true;
+                            }
+                            select.appendChild(option);
+                        });
+                    }
+                });
+                
+                // 更新模型选择器
+                projectData[project].models.forEach(model => {
+                    // 来自数据
+                    const fromSelect = document.getElementById(`${model.id}-from-data`);
+                    if (fromSelect) {
+                        fromSelect.innerHTML = '<option value="none">无</option>';
+                        projectData[project].data.forEach(dataItem => {
+                            const option = document.createElement('option');
+                            option.value = dataItem.id;
+                            option.textContent = dataItem.name || `数据 #${dataItem.id.split('-').pop()}`;
+                            if (model.fromData.includes(dataItem.id)) {
+                                option.selected = true;
+                            }
+                            fromSelect.appendChild(option);
+                        });
+                    }
+                    
+                    // 到能力模型
+                    const toCapSelect = document.getElementById(`${model.id}-to-capabilities`);
+                    if (toCapSelect) {
+                        toCapSelect.innerHTML = '<option value="none">无</option>';
+                        projectData[project].capabilities.forEach(cap => {
+                            const option = document.createElement('option');
+                            option.value = cap.id;
+                            option.textContent = cap.name || `能力模型 #${cap.id.split('-').pop()}`;
+                            if (model.toCapabilities.includes(cap.id)) {
+                                option.selected = true;
+                            }
+                            toCapSelect.appendChild(option);
+                        });
+                    }
+                    
+                    // 到产品
+                    const toProdSelect = document.getElementById(`${model.id}-to-products`);
+                    if (toProdSelect) {
+                        toProdSelect.innerHTML = '<option value="none">无</option>';
+                        projectData[project].products.forEach(prod => {
+                            const option = document.createElement('option');
+                            option.value = prod.id;
+                            const productLabel = productOptions.find(p => p.value === prod.type)?.label || `产品 #${prod.id.split('-').pop()}`;
+                            option.textContent = productLabel;
+                            if (model.toProducts && model.toProducts.includes(prod.id)) {
+                                option.selected = true;
+                            }
+                            toProdSelect.appendChild(option);
+                        });
+                    }
+                });
+                
+                // 更新能力模型选择器
+                projectData[project].capabilities.forEach(cap => {
+                    // 来自基座模型
+                    const fromSelect = document.getElementById(`${cap.id}
+                    
+                    // 来自数据
+                    const fromDataSelect = document.getElementById(`${cap.id}-from-data`);
+                    if (fromDataSelect) {
+                        fromDataSelect.innerHTML = '<option value="none">无</option>';
+                        projectData[project].data.forEach(dataItem => {
+                            const option = document.createElement('option');
+                            option.value = dataItem.id;
+                            option.textContent = dataItem.name || `数据 #${dataItem.id.split('-').pop()}`;
+                            if (cap.fromData && cap.fromData.includes(dataItem.id)) {
+                                option.selected = true;
+                            }
+                            fromDataSelect.appendChild(option);
+                        });
+                    }-from-models`);
+                    if (fromSelect) {
+                        fromSelect.innerHTML = '<option value="none">无</option>';
+                        projectData[project].models.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model.id;
+                            option.textContent = model.name || `基座模型 #${model.id.split('-').pop()}`;
+                            if (cap.fromModels.includes(model.id)) {
+                                option.selected = true;
+                            }
+                            fromSelect.appendChild(option);
+                        });
+                    }
+                    
+                    // 到产品
+                    const toSelect = document.getElementById(`${cap.id}-to-products`);
+                    if (toSelect) {
+                        toSelect.innerHTML = '<option value="none">无</option>';
+                        projectData[project].products.forEach(prod => {
+                            const option = document.createElement('option');
+                            option.value = prod.id;
+                            const productLabel = productOptions.find(p => p.value === prod.type)?.label || `产品 #${prod.id.split('-').pop()}`;
+                            option.textContent = productLabel;
+                            if (cap.toProducts.includes(prod.id)) {
+                                option.selected = true;
+                            }
+                            toSelect.appendChild(option);
+                        });
+                    }
+                });
+                
+                // 更新产品选择器
+                projectData[project].products.forEach(prod => {
+                    // 来自能力模型
+                    const fromCapSelect = document.getElementById(`${prod.id}-from-capabilities`);
+                    if (fromCapSelect) {
+                        fromCapSelect.innerHTML = '<option value="none">无</option>';
+                        projectData[project].capabilities.forEach(cap => {
+                            const option = document.createElement('option');
+                            option.value = cap.id;
+                            option.textContent = cap.name || `能力模型 #${cap.id.split('-').pop()}`;
+                            if (prod.fromCapabilities.includes(cap.id)) {
+                                option.selected = true;
+                            }
+                            fromCapSelect.appendChild(option);
+                        });
+                    }
+                    
+                    // 来自基座模型
+                    const fromModelSelect = document.getElementById(`${prod.id}-from-models`);
+                    if (fromModelSelect) {
+                        fromModelSelect.innerHTML = '<option value="none">无</option>';
+                        projectData[project].models.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model.id;
+                            option.textContent = model.name || `基座模型 #${model.id.split('-').pop()}`;
+                            if (prod.fromModels && prod.fromModels.includes(model.id)) {
+                                option.selected = true;
+                            }
+                            fromModelSelect.appendChild(option);
+                        });
+                    }
+                });
+            }, 100);
+        }
+        
+        // 删除项目
+        function removeItem(project, type, id) {
+            if (!confirm('确定要删除吗？')) return;
+            
+            // 从数据中删除
+            projectData[project][type] = projectData[project][type].filter(item => item.id !== id);
+            
+            // 从DOM中删除
+            const element = document.querySelector(`[data-id="${id}"]`);
+            if (element) element.remove();
+            
+            // 更新所有选择器
+            updateAllSelectors(project);
+        }
+        
+        // 保存项目
+        function saveProject(project) {
+            // 保存其他字段
+            const data = {
+                trainingCompute: document.getElementById(`${project}-training-compute`)?.value || '',
+                inferenceCompute: document.getElementById(`${project}-inference-compute`)?.value || '',
+                hardware: document.getElementById(`${project}-hardware`)?.value || '',
+                perception: document.getElementById(`${project}-perception`)?.value || '',
+                data: projectData[project].data,
+                models: projectData[project].models,
+                capabilities: projectData[project].capabilities,
+                products: projectData[project].products
+            };
+            
+            localStorage.setItem(`project_${project}`, JSON.stringify(data));
+            alert('保存成功！');
+        }
+        
+        // 加载项目数据
+        function loadProject(project) {
+            const saved = localStorage.getItem(`project_${project}`);
+            if (!saved) return;
+            
+            try {
+                const data = JSON.parse(saved);
+                
+                // 加载基本字段
+                if (data.trainingCompute) document.getElementById(`${project}-training-compute`).value = data.trainingCompute;
+                if (data.inferenceCompute) document.getElementById(`${project}-inference-compute`).value = data.inferenceCompute;
+                if (data.hardware) document.getElementById(`${project}-hardware`).value = data.hardware;
+                if (data.perception) document.getElementById(`${project}-perception`).value = data.perception;
+                
+                // 清空容器
+                projectData[project] = { data: [], models: [], capabilities: [], products: [] };
+                
+                // 加载数据
+                if (data.data) {
+                    data.data.forEach((item, index) => {
+                        projectData[project].data.push(item);
+                        const container = document.getElementById(`${project}-data-container`);
+                        const html = createDataItemHTML(project, item, index + 1);
+                        container.insertAdjacentHTML('beforeend', html);
+                    });
+                }
+                
+                // 加载模型
+                if (data.models) {
+                    data.models.forEach((item, index) => {
+                        projectData[project].models.push(item);
+                        const container = document.getElementById(`${project}-model-container`);
+                        const html = createModelItemHTML(project, item, index + 1);
+                        container.insertAdjacentHTML('beforeend', html);
+                    });
+                }
+                
+                // 加载能力模型
+                if (data.capabilities) {
+                    data.capabilities.forEach((item, index) => {
+                        projectData[project].capabilities.push(item);
+                        const container = document.getElementById(`${project}-capability-container`);
+                        const html = createCapabilityItemHTML(project, item, index + 1);
+                        container.insertAdjacentHTML('beforeend', html);
+                    });
+                }
+                
+                // 加载产品
+                if (data.products) {
+                    data.products.forEach((item, index) => {
+                        projectData[project].products.push(item);
+                        const container = document.getElementById(`${project}-product-container`);
+                        const html = createProductItemHTML(project, item, index + 1);
+                        container.insertAdjacentHTML('beforeend', html);
+                    });
+                }
+                
+                updateAllSelectors(project);
+            } catch (e) {
+                console.error('加载失败:', e);
+            }
+        }
+        
+        // 创建数据项HTML
+        function createDataItemHTML(project, item, index) {
+            return `
+                <div class="data-item" data-id="${item.id}">
+                    <div class="item-header">
+                        <span class="item-title">数据 #${index}</span>
+                        <button class="remove-btn" onclick="removeItem('${project}', 'data', '${item.id}')">删除</button>
+                    </div>
+                    <div class="input-group">
+                        <label>数据名称：</label>
+                        <input type="text" placeholder="输入数据名称" value="${item.name || ''}" onchange="updateDataField('${project}', '${item.id}', 'name', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>数据来源：</label>
+                        <select onchange="updateDataField('${project}', '${item.id}', 'source', this.value)">
+                            <option value="internal" ${item.source === 'internal' ? 'selected' : ''}>内部</option>
+                            <option value="external" ${item.source === 'external' ? 'selected' : ''}>外部</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>数据量：</label>
+                        <input type="text" placeholder="例如：100TB" value="${item.volume || ''}" onchange="updateDataField('${project}', '${item.id}', 'volume', this.value)">
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">输入到基座模型：</span>
+                        <select multiple id="${item.id}-to-models" onchange="updateDataRelation('${project}', '${item.id}')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    
+                    <div class="relation-select">
+                        <span class="relation-label">直接输出到能力模型：</span>
+                        <select multiple id="${item.id}-to-capabilities" onchange="updateDataRelation('${project}', '${item.id}', 'toCapabilities')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                </div>
+                </div>
+            `;
+        }
+        
+        // 创建模型项HTML
+        function createModelItemHTML(project, item, index) {
+            return `
+                <div class="model-item" data-id="${item.id}">
+                    <div class="item-header">
+                        <span class="item-title">基座模型 #${index}</span>
+                        <button class="remove-btn" onclick="removeItem('${project}', 'models', '${item.id}')">删除</button>
+                    </div>
+                    <div class="input-group">
+                        <label>模型名称：</label>
+                        <input type="text" placeholder="例如：GPT-4" value="${item.name || ''}" onchange="updateModelField('${project}', '${item.id}', 'name', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>参数规模：</label>
+                        <input type="text" placeholder="例如：175B" value="${item.params || ''}" onchange="updateModelField('${project}', '${item.id}', 'params', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>版本号：</label>
+                        <input type="text" placeholder="例如：v2.0" value="${item.version || ''}" onchange="updateModelField('${project}', '${item.id}', 'version', this.value)">
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">来自数据：</span>
+                        <select multiple id="${item.id}-from-data" onchange="updateModelRelation('${project}', '${item.id}', 'from')">
+                            <option value="none">无</option>
+                        </select>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">输出到能力模型：</span>
+                        <select multiple id="${item.id}-to-capabilities" onchange="updateModelRelation('${project}', '${item.id}', 'toCapabilities')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">直接输出到产品：</span>
+                        <select multiple id="${item.id}-to-products" onchange="updateModelRelation('${project}', '${item.id}', 'toProducts')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 创建能力模型HTML
+        function createCapabilityItemHTML(project, item, index) {
+            return `
+                <div class="capability-item" data-id="${item.id}">
+                    <div class="item-header">
+                        <span class="item-title">能力模型 #${index}</span>
+                        <button class="remove-btn" onclick="removeItem('${project}', 'capabilities', '${item.id}')">删除</button>
+                    </div>
+                    <div class="input-group">
+                        <label>能力模型名称：</label>
+                        <input type="text" placeholder="输入能力模型名称" value="${item.name || ''}" onchange="updateCapabilityField('${project}', '${item.id}', 'name', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>描述：</label>
+                        <textarea placeholder="描述该能力模型的功能和特点" onchange="updateCapabilityField('${project}', '${item.id}', 'description', this.value)">${item.description || ''}</textarea>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">来自基座模型：</span>
+                        <select multiple id="${item.id}-from-models" onchange="updateCapabilityRelation('${project}', '${item.id}', 'from')">
+                            <option value="none">无</option>
+                        </select>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">直接来自数据：</span>
+                        <select multiple id="${item.id}-from-data" onchange="updateCapabilityRelation('${project}', '${item.id}', 'fromData')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                
+                    <div class="relation-select">
+                        <span class="relation-label">输出到产品：</span>
+                        <select multiple id="${item.id}-to-products" onchange="updateCapabilityRelation('${project}', '${item.id}', 'to')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 创建产品HTML
+        function createProductItemHTML(project, item, index) {
+            let optionsHtml = '<option value="">请选择产品</option>';
+            productOptions.forEach(opt => {
+                const selected = opt.value === item.type ? 'selected' : '';
+                optionsHtml += `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
+            });
+            
+            return `
+                <div class="product-item" data-id="${item.id}">
+                    <div class="item-header">
+                        <span class="item-title">产品 #${index}</span>
+                        <button class="remove-btn" onclick="removeItem('${project}', 'products', '${item.id}')">删除</button>
+                    </div>
+                    <div class="input-group">
+                        <label>选择产品：</label>
+                        <select onchange="updateProductField('${project}', '${item.id}', 'type', this.value)">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>产品描述：</label>
+                        <textarea placeholder="描述产品特点" onchange="updateProductField('${project}', '${item.id}', 'description', this.value)">${item.description || ''}</textarea>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">来源于能力模型：</span>
+                        <select multiple id="${item.id}-from-capabilities" onchange="updateProductRelation('${project}', '${item.id}', 'fromCapabilities')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                    <div class="relation-select">
+                        <span class="relation-label">直接来源于基座模型：</span>
+                        <select multiple id="${item.id}-from-models" onchange="updateProductRelation('${project}', '${item.id}', 'fromModels')">
+                            <option value="none">无</option>
+                        </select>
+                        <small style="color: #6c757d;">按住Ctrl/Cmd多选</small>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 生成汇总
+        function generateSummary() {
+            const container = document.getElementById('summary-content');
+            
+            // 收集所有产品
+            const allProducts = {};
+            
+            ['sh', 'sc', 'bm', 'sr', 'wr'].forEach(project => {
+                const data = projectData[project];
+                
+                data.products.forEach(product => {
+                    if (!product.type) return;
+                    
+                    if (!allProducts[product.type]) {
+                        allProducts[product.type] = [];
+                    }
+                    
+                    // 追溯产品的完整路径
+                    const trace = traceProduct(project, product);
+                    
+                    allProducts[product.type].push({
+                        project: projectNames[project],
+                        projectId: project,
+                        product: product,
+                        trace: trace
+                    });
+                });
+            });
+            
+            // 生成HTML
+            let html = '';
+            
+            if (Object.keys(allProducts).length === 0) {
+                html = '<div class="no-data">暂无产品数据</div>';
+            } else {
+                productOptions.forEach(option => {
+                    if (allProducts[option.value]) {
+                        html += `
+                            <div class="product-summary">
+                                <div class="product-title">${option.label}</div>
+                                ${allProducts[option.value].map(item => `
+                                    <div class="trace-path">
+                                        <h4 style="color: #667eea; margin-bottom: 10px;">来自项目: ${item.project}</h4>
+                                        ${item.product.description ? `<p style="color: #666; margin-bottom: 15px; font-style: italic;">${item.product.description}</p>` : ''}
+                                        
+                                        ${item.trace.capabilities.length > 0 ? `
+                                            <div class="trace-step">
+                                                <div class="trace-step-title">🎯 能力模型</div>
+                                                ${item.trace.capabilities.map(cap => `
+                                                    <div class="trace-item">
+                                                        <div class="trace-item-name">${cap.name || '未命名能力模型'}</div>
+                                                        ${cap.description ? `<div class="trace-item-detail">描述: ${cap.description}</div>` : ''}
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : '<div style="color: #999; margin: 10px 0;">无能力模型关联</div>'}
+                                        
+                                        ${item.trace.models.length > 0 ? `
+                                            <div class="trace-step">
+                                                <div class="trace-step-title">🧠 基座模型</div>
+                                                ${item.trace.models.map(model => `
+                                                    <div class="trace-item">
+                                                        <div class="trace-item-name">${model.name || '未命名模型'}</div>
+                                                        <div class="trace-item-detail">
+                                                            ${model.params ? `参数规模: ${model.params}` : ''} 
+                                                            ${model.params && model.version ? ' | ' : ''}
+                                                            ${model.version ? `版本: ${model.version}` : ''}
+                                                        </div>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : '<div style="color: #999; margin: 10px 0;">无基座模型关联</div>'}
+                                        
+                                        ${item.trace.data.length > 0 ? `
+                                            <div class="trace-step">
+                                                <div class="trace-step-title">📊 数据来源</div>
+                                                ${item.trace.data.map(data => `
+                                                    <div class="trace-item">
+                                                        <div class="trace-item-name">
+                                                            ${data.name || '未命名数据'}
+                                                            <span class="tag ${data.source === 'internal' ? 'tag-internal' : 'tag-external'}">
+                                                                ${data.source === 'internal' ? '内部' : '外部'}
+                                                            </span>
+                                                        </div>
+                                                        ${data.volume ? `<div class="trace-item-detail">数据量: ${data.volume}</div>` : ''}
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : '<div style="color: #999; margin: 10px 0;">无数据来源关联</div>'}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                });
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // 追溯产品路径 - 改进版:有什么显示什么,不强制完整链路
+    function traceProduct(project, product) {
+        const result = {
+            capabilities: [],
+            models: [],
+            data: []
+        };
+        
+        const projectDataRef = projectData[project];
+        
+        // 第一步:收集直接连接的能力模型
+        if (product.fromCapabilities && product.fromCapabilities.length > 0) {
+            product.fromCapabilities.forEach(capId => {
+                const cap = projectDataRef.capabilities.find(c => c.id === capId);
+                if (cap && !result.capabilities.find(c => c.id === cap.id)) {
+                    result.capabilities.push(cap);
+                }
+            });
+        }
+        
+        // 第二步:收集直接连接的基座模型
+        if (product.fromModels && product.fromModels.length > 0) {
+            product.fromModels.forEach(modelId => {
+                const model = projectDataRef.models.find(m => m.id === modelId);
+                if (model && !result.models.find(m => m.id === model.id)) {
+                    result.models.push(model);
+                }
+            });
+        }
+        
+        // 第三步:从能力模型追溯到基座模型
+        result.capabilities.forEach(cap => {
+            if (cap.fromModels && cap.fromModels.length > 0) {
+                cap.fromModels.forEach(modelId => {
+                    const model = projectDataRef.models.find(m => m.id === modelId);
+                    if (model && !result.models.find(m => m.id === model.id)) {
+                        result.models.push(model);
+                    }
+                });
+            }
+        });
+        
+        // 第四步:从能力模型直接追溯到数据
+        result.capabilities.forEach(cap => {
+            if (cap.fromData && cap.fromData.length > 0) {
+                cap.fromData.forEach(dataId => {
+                    const data = projectDataRef.data.find(d => d.id === dataId);
+                    if (data && !result.data.find(d => d.id === data.id)) {
+                        result.data.push(data);
+                    }
+                });
+            }
+        });
+        
+        // 第五步:从基座模型追溯到数据
+        result.models.forEach(model => {
+            if (model.fromData && model.fromData.length > 0) {
+                model.fromData.forEach(dataId => {
+                    const data = projectDataRef.data.find(d => d.id === dataId);
+                    if (data && !result.data.find(d => d.id === data.id)) {
+                        result.data.push(data);
+                    }
+                });
+            }
+        });
+        
+        return result;
+    };
+            
+            const projectDataRef = projectData[project];
+            
+            // 获取能力模型
+            if (product.fromCapabilities) {
+                product.fromCapabilities.forEach(capId => {
+                    const cap = projectDataRef.capabilities.find(c => c.id === capId);
+                    if (cap) {
+                        result.capabilities.push(cap);
+                        
+                        // 获取基座模型
+                        cap.fromModels.forEach(modelId => {
+                            const model = projectDataRef.models.find(m => m.id === modelId);
+                            if (model && !result.models.find(m => m.id === model.id)) {
+                                result.models.push(model);
+                                
+                                // 获取数据
+                                model.fromData.forEach(dataId => {
+                                    const data = projectDataRef.data.find(d => d.id === dataId);
+                                    if (data && !result.data.find(d => d.id === data.id)) {
+                                        result.data.push(data);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // 获取直接来自基座模型的产品
+            if (product.fromModels) {
+                product.fromModels.forEach(modelId => {
+                    const model = projectDataRef.models.find(m => m.id === modelId);
+                    if (model && !result.models.find(m => m.id === model.id)) {
+                        result.models.push(model);
+                        
+                        // 获取数据
+                        model.fromData.forEach(dataId => {
+                            const data = projectDataRef.data.find(d => d.id === dataId);
+                            if (data && !result.data.find(d => d.id === data.id)) {
+                                result.data.push(data);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            return result;
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            // 为每个项目加载数据
+            ['sh', 'sc', 'bm', 'sr', 'wr'].forEach(project => {
+                loadProject(project);
+            });
+        });
+    </script>
+</body>
+</html>
